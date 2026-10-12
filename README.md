@@ -1,14 +1,93 @@
-# Sys-con
+# sys-con + Xbox Wireless Adapter
 
-#### Connect any USB controller to your Nintendo Switch ! 
-***Support any controller***: PC controllers, Wheels, Dualshock 3, Dualshock 4, Dualsense (PS5), XBOX, XBOX360, XBOXONE, Wii, SInput, ...
+**Use Xbox One and Series controllers wirelessly on a modded Nintendo Switch, through Microsoft's Xbox Wireless Adapter for Windows.**
 
-## Description
+This is a fork of [sys-con](https://github.com/o0Zz/sys-con) by o0Zz. It adds one thing: a driver for the Xbox Wireless Adapter, so controllers without Bluetooth (such as the original Xbox One controller) work on the Switch without a cable. Everything else sys-con does still works the same.
+
+[![Download](https://img.shields.io/github/v/release/hagenbui/sys-con-wireless-adapter-xbox?label=download&style=for-the-badge)](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/releases/latest)
+
+## Tested on
+
+| | |
+|---|---|
+| Console | Nintendo Switch with Atmosphère, system firmware 19.0.1 |
+| Adapter | Xbox Wireless Adapter for Windows, slim model (`045e-02fe`) |
+| Controller | Xbox One controller without Bluetooth |
+| Connection | Adapter plugged into the dock |
+| Working | Buttons and sticks, rumble, Home button, reconnects after the console sleeps |
+
+**Not tested yet:** the original large adapter (`045e-02e6`), Xbox Series X\|S and Elite controllers, more than one controller at a time, handheld mode through a USB-C adapter. They are expected to work; if you try one, please [open an issue](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/issues) either way.
+
+## Install
+
+You need a Switch running [Atmosphère](https://github.com/Atmosphere-NX/Atmosphere) custom firmware.
+
+1. **Download** the zip from the [latest release](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/releases/latest).
+2. **Copy** everything inside the zip to the root of your SD card, replacing existing files. This replaces `/config/sys-con/config.ini`; back it up first if you changed it.
+3. **Add the adapter firmware** to `/config/sys-con/` on the SD card, named `xbox_adapter_firmware.bin` (see below).
+4. **Reboot** the Switch.
+
+### Getting the adapter firmware
+
+The adapter has no permanent firmware: the host loads Microsoft's firmware into it every time it is plugged in. That file belongs to Microsoft, so it is not included here. Get it from Microsoft's own driver package:
+
+1. Download the driver package from Windows Update:
+   [`1cd6a87c-623f-4407-a52d-c31be49e925c_e19f60808bdcbfbd3c3df6be3e71ffc52e43261e.cab`](http://download.windowsupdate.com/c/msdownload/update/driver/drvs/2017/07/1cd6a87c-623f-4407-a52d-c31be49e925c_e19f60808bdcbfbd3c3df6be3e71ffc52e43261e.cab)
+2. Open it. On Windows, double-click the `.cab` file and it opens like a folder. On macOS or Linux, use `cabextract` or The Unarchiver.
+3. Copy out **`FW_ACC_00U.bin`** and rename it to **`xbox_adapter_firmware.bin`**.
+4. Optional check: its SHA-256 should be
+   `48084d9fa53b9bb04358f3bb127b7495dc8f7bb0b3ca1437bd24ef2b6eabdf66`
+   (on Windows: `Get-FileHash .\xbox_adapter_firmware.bin` in PowerShell).
+
+The firmware is covered by the [Microsoft Terms of Use](https://www.microsoft.com/en-us/legal/terms-of-use). This is the same file the Linux drivers [xow](https://github.com/medusalix/xow) and [xone](https://github.com/medusalix/xone) use.
+
+## Pair a controller
+
+1. Plug the adapter into the dock (or into the Switch's USB-C port with a USB-C to USB-A adapter).
+2. Press the **button on the adapter**. Its light starts blinking.
+3. Hold the small **pair button** on top of the controller until the Xbox logo flashes fast.
+4. When the logo stays lit, the controller is connected. It shows up as a Pro Controller.
+
+You only pair once. Afterwards, press the Xbox button on the controller to reconnect. Up to 4 controllers can be connected at once.
+
+Pairing with the adapter unpairs the controller from any Xbox or PC it was paired with before.
+
+## Troubleshooting
+
+Look in `/config/sys-con/log.txt` on the SD card first. The lines that matter:
+
+| Log says | What to do |
+|---|---|
+| `firmware not found at '/config/sys-con/xbox_adapter_firmware.bin'` | The firmware file is missing or misnamed. See [Getting the adapter firmware](#getting-the-adapter-firmware). |
+| `Xbox Wireless Adapter failed to start - ignoring it until it is replugged` | Check the firmware file (the SHA-256 above), then unplug and replug the adapter. |
+| `Mt76: Radio ready` but the controller never connects | Press the adapter button, then the controller's pair button within about 20 seconds. |
+| `All 4 slots taken` | Four controllers are already connected. Turn one off. |
+| Nothing about the adapter at all | Make sure the zip was copied to the SD card root, then reboot. |
+
+If none of that helps, [open an issue](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/issues) and attach your `log.txt`.
+
+### Limits
+
+- No headset audio and no chatpad: only the controller itself is supported.
+- Rumble needs `mode=mitm` in `config.ini`, which is the default.
+- Starting the adapter takes a few seconds after it is plugged in, while its firmware loads.
+
+## How it works
+
+The adapter is a MediaTek MT7612U Wi-Fi chip that talks to controllers over a private 802.11 link, carrying GIP, the same Game Input Protocol that Xbox controllers use over USB. The driver ([`Mt76.cpp`](src/controllerlib/drivers/Mt76.cpp), [`XboxWirelessAdapter.cpp`](src/controllerlib/drivers/XboxWirelessAdapter.cpp)) is a port of [xow](https://github.com/medusalix/xow) by medusalix:
+
+1. Loads the firmware into the chip in 500-byte pieces, since the Switch's USB stack moves at most 512 bytes per transfer.
+2. Starts the radio, calibrates it and sends beacons, with pairing mode toggled by the adapter's button.
+3. Accepts each controller as a client, powers it on over GIP, and turns its button reports into a virtual Switch controller with sys-con's existing Xbox One mapping.
+
+---
+
+# About sys-con
+
 Sys-con is a Nintendo Switch module that adds support for all HID and XID joysticks and gamepads to the Nintendo Switch.
-Only **USB** connection is supported (For Bluetooth connection prefer to use ndeadly's [MissionControl](https://github.com/ndeadly/MissionControl))
+Only **USB** connection is supported (For Bluetooth connection prefer to use ndeadly's [MissionControl](https://github.com/ndeadly/MissionControl)). This fork adds the Xbox Wireless Adapter on top.
 
-## Installation
-Download the latest zip from the [releases page](https://github.com/o0zz/sys-con/releases). Extract it to your SD card root folder and boot/reboot your switch.
+***Support any controller***: PC controllers, Wheels, Dualshock 3, Dualshock 4, Dualsense (PS5), XBOX, XBOX360, XBOXONE, Wii, SInput, ...
 
 ## Configuration
 sys-con comes with a configuration folder located in `/config/sys-con/`. It contains configuration for controllers (Button mappings, sticks configuration, triggers configuration, deadzones...).
@@ -68,7 +147,7 @@ Reboot the Nintendo Switch.
 - [x] Wheels
 
 A complete list of tested controller is available 
-[here](https://github.com/o0Zz/sys-con/blob/master/doc/TestedControllers.md)
+[here](doc/TestedControllers.md)
 
 ## Configure a controller
 When a new controller is connected, sys-con tries to determine the best profile for this new controller.
@@ -351,15 +430,17 @@ pad. If you are upgrading with your own `config.ini`, copy both sections from th
 > authentication. Leave `network_controller=0` unless you are actively testing.
 
 ## Troubleshooting
-For common issues a troubleshooting guide is available: [Troubleshooting](https://github.com/o0Zz/sys-con/blob/master/doc/Troubleshooting.md)
+For common issues a troubleshooting guide is available: [Troubleshooting](doc/Troubleshooting.md)
 
 ## Contribution
+For anything about the Xbox Wireless Adapter, use this fork's [issues](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/issues). For sys-con in general:
+
 All contributions are welcome, you can be a simple user or developer, if you did some mapping work in the config.ini or if you have any feedback, feel free to share it in [Discussions](https://github.com/o0Zz/sys-con/discussions) or submit a [Pull request](https://github.com/o0Zz/sys-con/pulls)
 
 ## Building (For developers)
 
 Don't download the project as ZIP as it will not copy submodules properly, prefer a git clone:
-`git clone --recurse-submodules -j8 https://github.com/o0Zz/sys-con.git`
+`git clone --recurse-submodules -j8 https://github.com/hagenbui/sys-con-wireless-adapter-xbox.git`
 
 > **Updating an existing clone?** The submodules moved from `lib/` to `external/`. After
 > pulling, run `git submodule sync --recursive && git submodule update --init --recursive`,
@@ -436,10 +517,16 @@ For an in-depth explanation of how sys-con works, see [doc/ARCHITECTURE.md](doc/
 In order to debug the applicaiton, you can directly refer to the logs available there: `/config/sys-con/log.txt`.
 
 ## Credits
+- **o0Zz** and **cathery** for sys-con.
+- **medusalix** for [xow](https://github.com/medusalix/xow), whose reverse engineering of the Xbox Wireless Adapter this fork's driver is ported from.
+- The Linux **mt76** driver authors, for the MT76 register definitions.
 - **Texita** For contributions to controller testing and mappings.
 - **gingerphoenix10** For implementing the Steam controller driver.
 
+## License
+GPL-3.0, like sys-con. The adapter driver is derived from xow (GPL-2.0-or-later). The adapter firmware is Microsoft's and is not distributed here. Not affiliated with Microsoft or Nintendo.
+
 ## Support
-If you want to support this work 
+If you want to support sys-con itself
 
 [![ko-fi](https://img.shields.io/badge/Ko--fi-Buy%20me%20a%20coffee-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/o0Zzz)

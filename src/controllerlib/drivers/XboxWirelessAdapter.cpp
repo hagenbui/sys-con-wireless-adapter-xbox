@@ -155,12 +155,11 @@ namespace controllerlib
                 return HandleTransfer(transfer, transferSize, buffer, size, input_idx);
         }
 
-        // Alternate which endpoint paces the thread so neither waits behind the other for long.
-        IUSBEndpoint *endpoint = m_blockOnEvents ? m_eventEndpoint : m_packetEndpoint;
-        m_blockOnEvents = !m_blockOnEvents;
-
+        // Only input paces the thread: a wait on the event endpoint would hold back input that
+        // lands meanwhile for the whole timeout, while pairing and disconnect events can afford
+        // to be picked up by the probe above one period late.
         size_t transferSize = sizeof(transfer);
-        Status result = endpoint->Read(transfer, &transferSize, timeout_us);
+        Status result = m_packetEndpoint->Read(transfer, &transferSize, timeout_us);
         if (result != Status::Success)
             return result;
 

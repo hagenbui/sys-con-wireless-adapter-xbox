@@ -38,8 +38,11 @@ namespace
             return Status::Success;
         }
 
-        Status Read(uint8_t *buffer, size_t *size, uint64_t) override
+        Status Read(uint8_t *buffer, size_t *size, uint64_t timeout_us) override
         {
+            if (timeout_us != 0)
+                blockingReads++;
+
             if (reads.empty())
                 return Status::Timeout;
 
@@ -55,6 +58,7 @@ namespace
 
         std::vector<Bytes> writes;
         std::deque<Bytes> reads;
+        int blockingReads = 0;
 
     private:
         EndpointDescriptor m_descriptor{};
@@ -433,5 +437,35 @@ TEST(XboxWirelessAdapter, frames_for_other_addresses_are_ignored)
     NormalizedButtonData data;
     uint16_t slot;
     EXPECT_EQ(fixture.Read(&data, &slot), Status::NothingTodo);
+    EXPECT_FALSE(fixture.adapter->IsControllerConnected(0));
+}
+
+TEST(XboxWirelessAdapter, idle_reads_block_on_input_only)
+{
+    Fixture fixture;
+    ASSERT_EQ(fixture.adapter->Initialize(), Status::Success);
+    ASSERT_EQ(Connect(fixture, 1), Status::NothingTodo);
+
+    NormalizedButtonData data;
+    uint16_t slot;
+    for (int i = 0; i < 4; i++)
+        EXPECT_EQ(fixture.adapter->ReadInput(&data, &slot, 10000), Status::Timeout);
+
+    EXPECT_EQ(fixture.interface->PacketIn().blockingReads, 4);
+    EXPECT_EQ(fixture.interface->EventIn().blockingReads, 0);
+}
+
+TEST(XboxWirelessAdapter, events_are_picked_up_while_idle)
+{
+    Fixture fixture;
+    ASSERT_EQ(fixture.adapter->Initialize(), Status::Success);
+    ASSERT_EQ(Connect(fixture, 1), Status::NothingTodo);
+
+    constexpr uint32_t ClientLostEvent = (1u << 27) | (0x0eu << 20);
+    fixture.interface->EventIn().reads.push_back(Transfer(ClientLostEvent, {0x01, 0x00, 0x00, 0x00}));
+
+    NormalizedButtonData data;
+    uint16_t slot;
+    EXPECT_EQ(fixture.adapter->ReadInput(&data, &slot, 10000), Status::NothingTodo);
     EXPECT_FALSE(fixture.adapter->IsControllerConnected(0));
 }

@@ -63,7 +63,6 @@ namespace controllerlib
         IUSBEndpoint *m_eventEndpoint = nullptr;
         IUSBEndpoint *m_packetEndpoint = nullptr;
         IUSBEndpoint *m_writeEndpoint = nullptr;
-        bool m_blockOnEvents = false;
         std::array<Client, CONTROLLER_MAX_INPUTS> m_clients;
     };
 } // namespace controllerlib

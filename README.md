@@ -219,6 +219,8 @@ B=2
 A=1
 ```
 
+To swap A and B without touching the ButtonIDs, set `swap_ab=1` in the controller's section (or its profile). It is applied after every layer is loaded. The Xbox profiles ship with `swap_ab=1`, so A and B follow the printed labels; set `swap_ab=0` to get the positional layout back.
+
 ### Method 2 (From a windows PC)
 __Note:__ Button mapping can differ between windows and the switch
 1. Connect your controller to your PC

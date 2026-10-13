@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <string_view>
 #include <chrono>
+#include <utility>
 
 using namespace controllerlib;
 
@@ -357,6 +358,8 @@ namespace syscon::config
                 ini_data->controller_config->inputMaxPacketSize = atoi(value);
             else if (nameStr == "output_max_packet_size")
                 ini_data->controller_config->outputMaxPacketSize = atoi(value);
+            else if (nameStr == "swap_ab")
+                ini_data->controller_config->swapAB = atoi(value) != 0;
             else if (nameStr == "controller_type")
                 ini_data->controller_config->controllerType = stringToControllerType(value);
             else if (nameStr.starts_with("simulate_"))
@@ -682,6 +685,12 @@ namespace syscon::config
         int rc = LoadControllerLayers(configFullPath, config, vendor_id, product_id, auto_add_controller, default_profile);
         if (rc)
             return rc;
+
+        if (config->swapAB)
+        {
+            std::swap(config->buttonsPin[GamepadButton::A], config->buttonsPin[GamepadButton::B]);
+            std::swap(config->buttonsAnalog[GamepadButton::A], config->buttonsAnalog[GamepadButton::B]);
+        }
 
         if (config->buttonsPin[GamepadButton::B][0] == 0 && config->buttonsPin[GamepadButton::A][0] == 0 && config->buttonsPin[GamepadButton::Y][0] == 0 && config->buttonsPin[GamepadButton::X][0] == 0)
             syscon::logger::LogError("No buttons configured for this controller [%04x-%04x] - Stick might works but buttons will not work (https://github.com/o0Zz/sys-con/blob/master/doc/Troubleshooting.md)", vendor_id, product_id);

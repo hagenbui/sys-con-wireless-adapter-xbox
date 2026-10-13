@@ -59,9 +59,10 @@ TEST(Configuration, test_load_config_with_profile_xboxone)
     EXPECT_EQ(config.driver, "xboxone");
     EXPECT_EQ(config.profile, "xboxone");
     EXPECT_EQ(config.controllerType, ControllerType_Pro);
+    EXPECT_TRUE(config.swapAB);
     EXPECT_EQ(config.buttonsPin[GamepadButton::X][0], 4);
-    EXPECT_EQ(config.buttonsPin[GamepadButton::A][0], 2);
-    EXPECT_EQ(config.buttonsPin[GamepadButton::B][0], 1);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::A][0], 1);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::B][0], 2);
     EXPECT_EQ(config.buttonsPin[GamepadButton::Y][0], 3);
     EXPECT_EQ(config.simulateCombos[0].buttonSimulated, GamepadButton::CAPTURE);
     EXPECT_EQ(config.simulateCombos[1].buttonSimulated, GamepadButton::HOME);
@@ -208,4 +209,47 @@ TEST(Configuration, test_load_config_without_vibration_template)
     EXPECT_EQ(rc, 0);
 
     EXPECT_FALSE(config.rumble.IsValid());
+}
+
+TEST(Configuration, test_load_config_xbox_wireless_adapter_swaps_a_and_b)
+{
+    ControllerConfig config;
+
+    syscon::StdFileManager fileManager;
+    ::syscon::config::Initialize(fileManager);
+    int rc = ::syscon::config::LoadControllerConfig(CONFIG_FULLPATH_PROJECT, &config, 0x045e, 0x02fe, false, "");
+    EXPECT_EQ(rc, 0);
+
+    EXPECT_EQ(config.driver, "xboxadapter");
+    EXPECT_EQ(config.buttonsPin[GamepadButton::A][0], 1);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::B][0], 2);
+}
+
+TEST(Configuration, test_load_config_vidpid_section_turns_swap_ab_off)
+{
+    ControllerConfig config;
+
+    syscon::StdFileManager fileManager;
+    ::syscon::config::Initialize(fileManager);
+    int rc = ::syscon::config::LoadControllerConfig(CONFIG_FULLPATH_PROJECT, &config, 0x0f0d, 0x00dc, false, "");
+    EXPECT_EQ(rc, 0);
+
+    EXPECT_EQ(config.profile, "xbox360");
+    EXPECT_FALSE(config.swapAB);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::A][0], 1);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::B][0], 2);
+}
+
+TEST(Configuration, test_load_config_without_swap_ab_keeps_mapping)
+{
+    ControllerConfig config;
+
+    syscon::StdFileManager fileManager;
+    ::syscon::config::Initialize(fileManager);
+    int rc = ::syscon::config::LoadControllerConfig(CONFIG_FULLPATH_PROJECT, &config, 0x054c, 0x09cc, false, "");
+    EXPECT_EQ(rc, 0);
+
+    EXPECT_FALSE(config.swapAB);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::A][0], 3);
+    EXPECT_EQ(config.buttonsPin[GamepadButton::B][0], 2);
 }

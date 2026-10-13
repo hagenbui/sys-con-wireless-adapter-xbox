@@ -93,6 +93,9 @@ namespace controllerlib
         // Each button can be driven by up to MAX_PIN_BY_BUTTONS pins; 0 means unmapped.
         EnumArray<GamepadButton, std::array<PinId, MAX_PIN_BY_BUTTONS>, GamepadButtonCount> buttonsPin{};
 
+        // Applied once every layer is loaded, so a VID/PID section can still turn it off.
+        bool swapAB{false};
+
         bool buttonsAnalogUsed{false};
         EnumArray<GamepadButton, ControllerAnalogConfig, GamepadButtonCount> buttonsAnalog{};
 

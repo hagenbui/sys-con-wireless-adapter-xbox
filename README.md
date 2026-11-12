@@ -1,12 +1,21 @@
-# sys-con + Xbox Wireless Adapter
+# DISCONTINUED — sys-con + Xbox Wireless Adapter
 
-> **Discontinued — archived for reference.** This fork is no longer maintained and will receive no further updates or support. Xbox Wireless Adapter support is now available in the original [sys-con repository by o0Zz](https://github.com/o0Zz/sys-con). Please follow that project and use its [latest releases](https://github.com/o0Zz/sys-con/releases/latest) for continued updates. The documentation and releases below are historical.
+[![Status: discontinued](https://img.shields.io/badge/status-DISCONTINUED-red?style=for-the-badge)](https://github.com/o0Zz/sys-con)
+
+> [!CAUTION]
+> **This fork is discontinued and archived. No further updates, fixes, or support will be provided here.**
+>
+> Xbox Wireless Adapter support is now available in the original **[sys-con repository by o0Zz](https://github.com/o0Zz/sys-con)**. Please follow that project and **[download its latest release](https://github.com/o0Zz/sys-con/releases/latest)** for continued updates.
+>
+> Everything below is historical documentation for this unmaintained fork.
+
+## Historical fork documentation
 
 **Use Xbox One and Series controllers wirelessly on a modded Nintendo Switch, through Microsoft's Xbox Wireless Adapter for Windows.**
 
 This is a fork of [sys-con](https://github.com/o0Zz/sys-con) by o0Zz. It adds one thing: a driver for the Xbox Wireless Adapter, so controllers without Bluetooth (such as the original Xbox One controller) work on the Switch without a cable. Everything else sys-con does still works the same.
 
-[![Download](https://img.shields.io/github/v/release/hagenbui/sys-con-wireless-adapter-xbox?label=download&style=for-the-badge)](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/releases/latest)
+[Historical fork releases (unmaintained)](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/releases)
 
 ## Tested on
 
@@ -20,7 +29,7 @@ This is a fork of [sys-con](https://github.com/o0Zz/sys-con) by o0Zz. It adds on
 
 **Not tested in this fork:** the original large adapter (`045e-02e6`), Xbox Series X\|S and Elite controllers, more than one controller at a time, handheld mode through a USB-C adapter.
 
-## Install
+## Historical installation (unmaintained)
 
 You need a Switch running [Atmosphère](https://github.com/Atmosphere-NX/Atmosphere) custom firmware.
 

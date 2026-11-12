@@ -1,5 +1,7 @@
 # sys-con + Xbox Wireless Adapter
 
+> **Discontinued — archived for reference.** This fork is no longer maintained and will receive no further updates or support. Xbox Wireless Adapter support is now available in the original [sys-con repository by o0Zz](https://github.com/o0Zz/sys-con). Please follow that project and use its [latest releases](https://github.com/o0Zz/sys-con/releases/latest) for continued updates. The documentation and releases below are historical.
+
 **Use Xbox One and Series controllers wirelessly on a modded Nintendo Switch, through Microsoft's Xbox Wireless Adapter for Windows.**
 
 This is a fork of [sys-con](https://github.com/o0Zz/sys-con) by o0Zz. It adds one thing: a driver for the Xbox Wireless Adapter, so controllers without Bluetooth (such as the original Xbox One controller) work on the Switch without a cable. Everything else sys-con does still works the same.
@@ -16,7 +18,7 @@ This is a fork of [sys-con](https://github.com/o0Zz/sys-con) by o0Zz. It adds on
 | Connection | Adapter plugged into the dock |
 | Working | Buttons and sticks, rumble, Home button, reconnects after the console sleeps |
 
-**Not tested yet:** the original large adapter (`045e-02e6`), Xbox Series X\|S and Elite controllers, more than one controller at a time, handheld mode through a USB-C adapter. They are expected to work; if you try one, please [open an issue](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/issues) either way.
+**Not tested in this fork:** the original large adapter (`045e-02e6`), Xbox Series X\|S and Elite controllers, more than one controller at a time, handheld mode through a USB-C adapter.
 
 ## Install
 
@@ -64,7 +66,7 @@ Look in `/config/sys-con/log.txt` on the SD card first. The lines that matter:
 | `All 4 slots taken` | Four controllers are already connected. Turn one off. |
 | Nothing about the adapter at all | Make sure the zip was copied to the SD card root, then reboot. |
 
-If none of that helps, [open an issue](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/issues) and attach your `log.txt`.
+This fork no longer provides support. For current troubleshooting guidance, use the [upstream sys-con repository](https://github.com/o0Zz/sys-con).
 
 ### Limits
 
@@ -435,9 +437,7 @@ pad. If you are upgrading with your own `config.ini`, copy both sections from th
 For common issues a troubleshooting guide is available: [Troubleshooting](doc/Troubleshooting.md)
 
 ## Contribution
-For anything about the Xbox Wireless Adapter, use this fork's [issues](https://github.com/hagenbui/sys-con-wireless-adapter-xbox/issues). For sys-con in general:
-
-All contributions are welcome, you can be a simple user or developer, if you did some mapping work in the config.ini or if you have any feedback, feel free to share it in [Discussions](https://github.com/o0Zz/sys-con/discussions) or submit a [Pull request](https://github.com/o0Zz/sys-con/pulls)
+This fork is discontinued and no longer accepts issues or pull requests. Please follow the original [sys-con project](https://github.com/o0Zz/sys-con) for ongoing development and its contribution guidelines.
 
 ## Building (For developers)
 
